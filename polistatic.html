@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unitatea de Învățare — Constantin Barbu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-logo">Constantin Barbu</a>
+    <ul class="nav-linkuri">
+        <li><a href="index.html">Profil</a></li>
+        <li><a href="planificare.html">Planificare</a></li>
+        <li><a href="polistatic.html" class="activ">Polimorfism Static</a></li>
+        <li><a href="probleme.html">Probleme</a></li>
+        <li><a href="experiente.html">Experiențe</a></li>
+        <li><a href="declaratie.html">Declarație</a></li>
+    </ul>
+</nav>
+
+<div class="antet-pagina">
+    <p class="antet-eticheta">Capitol 2 · Unitatea de Învățare Analizată</p>
+    <h1 class="antet-titlu">Polimorfism <em>Static</em></h1>
+    <p class="antet-subtitlu">Programare Orientată pe Obiecte · C#</p>
+</div>
+
+<main class="continut-principal">
+
+    <div class="tema-bloc">
+        <p class="tema-subtitlu">Tema selectată</p>
+        <h2 class="tema-titlu">Polimorfismul Static în C#</h2>
+        <p style="color: var(--text-secundar); margin-top: 0.8rem; font-size: 0.95rem;">
+            Polimorfismul static reprezintă capacitatea unui limbaj de programare de a permite mai multe definiții ale aceluiași nume de metodă sau operator, rezolvate la momentul compilării (<em>compile-time</em>), nu la execuție.
+        </p>
+    </div>
+
+    <section class="sectiune">
+        <h2 class="sectiune-titlu">Ce este polimorfismul?</h2>
+        <div class="sectiune-linie"></div>
+        <div class="card">
+            <p style="color: var(--text-secundar); font-size: 0.95rem; line-height: 1.85;">
+                Polimorfismul este unul dintre cei patru piloni fundamentali ai Programării Orientate pe Obiecte (POO), alături de încapsulare, moștenire și abstractizare. Termenul provine din greacă și înseamnă <em>„mai multe forme"</em>. În programare, el permite ca un singur identificator să se refere la comportamente diferite în funcție de context.
+            </p>
+            <div class="ornament-separator">Tipuri de polimorfism</div>
+            <div class="grila-2">
+                <div style="background: var(--albastru-palid); border-radius: 10px; padding: 1.4rem;">
+                    <p class="eticheta-abilitate">Polimorfism Static (Compile-time)</p>
+                    <p style="font-size: 0.9rem; color: var(--text-secundar);">Rezolvat la compilare. Include supraîncărcarea metodelor și a operatorilor. Mai rapid — nu are overhead la execuție.</p>
+                </div>
+                <div style="background: var(--bej); border-radius: 10px; padding: 1.4rem; border: 1px solid var(--linie);">
+                    <p class="eticheta-abilitate">Polimorfism Dinamic (Runtime)</p>
+                    <p style="font-size: 0.9rem; color: var(--text-secundar);">Rezolvat la execuție. Include suprascrierea metodelor (<code>virtual</code> / <code>override</code>). Permite legarea tardivă (late binding).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sectiune">
+        <h2 class="sectiune-titlu">Supraîncărcarea metodelor (Method Overloading)</h2>
+        <div class="sectiune-linie"></div>
+        <div class="card">
+            <p style="color: var(--text-secundar); font-size: 0.92rem; margin-bottom: 1.2rem;">
+                Supraîncărcarea metodelor permite definirea mai multor metode cu același nume în aceeași clasă, dar cu parametri diferiți (număr, tip sau ordine). Compilatorul alege metoda potrivită în funcție de argumentele transmise.
+            </p>
+            <div class="caseta-info">
+                Reguli: metodele trebuie să difere prin lista de parametri. Tipul returnat singur nu este suficient pentru a diferenția metodele supraîncărcate.
+            </div>
+            <div class="bloc-cod">
+                <div class="bloc-cod-antet">
+                    <span class="punct-terminal rosu"></span>
+                    <span class="punct-terminal galben"></span>
+                    <span class="punct-terminal verde"></span>
+                    <span class="bloc-cod-eticheta">C# — Method Overloading</span>
+                </div>
+                <pre>using System;
+
+class Calculator {
+    // Varianta 1: doi întregi
+    public int Aduna(int a, int b) {
+        return a + b;
+    }
+
+    // Varianta 2: trei întregi
+    public int Aduna(int a, int b, int c) {
+        return a + b + c;
+    }
+
+    // Varianta 3: două numere reale
+    public double Aduna(double a, double b) {
+        return a + b;
+    }
+
+    // Varianta 4: un șir de caractere și un întreg
+    public string Aduna(string text, int numar) {
+        return text + numar.ToString();
+    }
+}
+
+class Program {
+    static void Main() {
+        Calculator calc = new Calculator();
+
+        Console.WriteLine(calc.Aduna(3, 5));           // → 8
+        Console.WriteLine(calc.Aduna(1, 2, 3));        // → 6
+        Console.WriteLine(calc.Aduna(2.5, 3.1));       // → 5.6
+        Console.WriteLine(calc.Aduna("Număr: ", 42));  // → Număr: 42
+    }
+}</pre>
+            </div>
+            <div class="bloc-consola">
+                <div class="consola-antet">Rezultat consolă</div>
+                <div class="consola-text">8
+6
+5.6
+Număr: 42</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sectiune">
+        <h2 class="sectiune-titlu">Supraîncărcarea operatorilor (Operator Overloading)</h2>
+        <div class="sectiune-linie"></div>
+        <div class="card">
+            <p style="color: var(--text-secundar); font-size: 0.92rem; margin-bottom: 1.2rem;">
+                C# permite redefinirea comportamentului operatorilor standard (<code>+</code>, <code>-</code>, <code>*</code>, <code>==</code> etc.) pentru tipuri definite de utilizator. Acest mecanism este tot o formă de polimorfism static.
+            </p>
+            <div class="bloc-cod">
+                <div class="bloc-cod-antet">
+                    <span class="punct-terminal rosu"></span>
+                    <span class="punct-terminal galben"></span>
+                    <span class="punct-terminal verde"></span>
+                    <span class="bloc-cod-eticheta">C# — Operator Overloading</span>
+                </div>
+                <pre>using System;
+
+class Vector2D {
+    public double X { get; set; }
+    public double Y { get; set; }
+
+    public Vector2D(double x, double y) {
+        X = x;
+        Y = y;
+    }
+
+    // Supraîncărcarea operatorului +
+    public static Vector2D operator +(Vector2D v1, Vector2D v2) {
+        return new Vector2D(v1.X + v2.X, v1.Y + v2.Y);
+    }
+
+    // Supraîncărcarea operatorului *
+    public static Vector2D operator *(Vector2D v, double scalar) {
+        return new Vector2D(v.X * scalar, v.Y * scalar);
+    }
+
+    public override string ToString() {
+        return $"({X}, {Y})";
+    }
+}
+
+class Program {
+    static void Main() {
+        Vector2D v1 = new Vector2D(1, 2);
+        Vector2D v2 = new Vector2D(3, 4);
+
+        Vector2D suma = v1 + v2;
+        Vector2D produs = v1 * 3;
+
+        Console.WriteLine($"v1 + v2 = {suma}");    // → (4, 6)
+        Console.WriteLine($"v1 * 3 = {produs}");    // → (3, 6)
+    }
+}</pre>
+            </div>
+            <div class="bloc-consola">
+                <div class="consola-antet">Rezultat consolă</div>
+                <div class="consola-text">v1 + v2 = (4, 6)
+v1 * 3 = (3, 6)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sectiune">
+        <h2 class="sectiune-titlu">Avantaje și limite</h2>
+        <div class="sectiune-linie"></div>
+        <div class="grila-2">
+            <div class="card">
+                <p class="card-titlu" style="color: #1e7d46;">✓ Avantaje</p>
+                <ul class="lista-curata">
+                    <li>Cod mai clar și mai lizibil — un singur nume de metodă pentru operații similare</li>
+                    <li>Fără overhead la execuție — rezolvare la compilare</li>
+                    <li>Flexibilitate în proiectarea API-urilor</li>
+                    <li>Reducerea numărului de metode cu nume diferite în cod</li>
+                </ul>
+            </div>
+            <div class="card">
+                <p class="card-titlu" style="color: var(--albastru-mediu);">⚠ Limite</p>
+                <ul class="lista-curata">
+                    <li>Nu permite comportament dinamic (rezolvat la runtime)</li>
+                    <li>Tipul de returnare singur nu poate diferenția supraîncărcările</li>
+                    <li>Poate crea ambiguitate dacă nu este folosit cu atenție</li>
+                    <li>Nu toți operatorii pot fi supraîncărcați în C#</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="sectiune">
+        <h2 class="sectiune-titlu">Rezumat conceptual</h2>
+        <div class="sectiune-linie"></div>
+        <div class="card">
+            <div class="grila-3">
+                <div style="text-align: center; padding: 1rem;">
+                    <p style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--albastru-inchis); font-weight: 600;">POO</p>
+                    <p class="eticheta-abilitate" style="margin-top: 0.3rem;">Paradigmă</p>
+                </div>
+                <div style="text-align: center; padding: 1rem; border-left: 1px solid var(--linie); border-right: 1px solid var(--linie);">
+                    <p style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--albastru-mediu); font-weight: 600;">Static</p>
+                    <p class="eticheta-abilitate" style="margin-top: 0.3rem;">Tip polimorfism</p>
+                </div>
+                <div style="text-align: center; padding: 1rem;">
+                    <p style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--albastru-deschis); font-weight: 600;">C#</p>
+                    <p class="eticheta-abilitate" style="margin-top: 0.3rem;">Limbaj</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <span class="footer-text">Constantin Barbu · Practică de Instruire · CEEF Chișinău</span>
+    <span class="footer-text">Capitol 2 · Unitatea de Învățare</span>
+</footer>
+
+</body>
+</html>

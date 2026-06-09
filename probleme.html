@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezolvarea Problemelor — Constantin Barbu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-logo">Constantin Barbu</a>
+    <ul class="nav-linkuri">
+        <li><a href="index.html">Profil</a></li>
+        <li><a href="planificare.html">Planificare</a></li>
+        <li><a href="polistatic.html">Polimorfism Static</a></li>
+        <li><a href="probleme.html" class="activ">Probleme</a></li>
+        <li><a href="experiente.html">Experiențe</a></li>
+        <li><a href="declaratie.html">Declarație</a></li>
+    </ul>
+</nav>
+
+<div class="antet-pagina">
+    <p class="antet-eticheta">Capitol 3 · Rezolvarea Problemelor</p>
+    <h1 class="antet-titlu">Probleme <em>rezolvate</em></h1>
+    <p class="antet-subtitlu">Algoritmică C++ · Programare Orientată pe Obiecte C#</p>
+</div>
+
+<main class="continut-principal">
+
+    <div class="ornament-separator">Probleme de algoritmică — C++</div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m1.6</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M1. 6 Pe o suprafață plană sunt mai multe puncte, date prin coordonatele lor. Fișierul date.in, care pe
+prima linie conține numărul de puncte din plan, iar pe următoarele linii sunt scrise coordonatele
+punctelor. Elaborați un program prin intermediul căruia se va determina numărul maximal de triunghiuri
+care pot fi formate din aceste puncte cu condiția că:
+a) Triunghiurile formate nu se intersectează;
+b) Triunghiurile formate sunt înscrise;
+c) Triunghiurile formate au un vârf comun.</textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <cmath>
+#include <fstream>
+
+using namespace std;
+
+struct puncte {
+    int x;
+    int y;
+} p[30];
+
+int maxtriunghiuri = 0;
+
+void citire(int& n) {
+    fstream fin("date.in");
+    fin >> n;
+    for (int i = 0; i < n; i++) {
+        fin >> p[i].x >> p[i].y;
+    }
+    fin.close();
+}
+
+bool estetriunghi(puncte a, puncte b, puncte c) {
+    int det = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
+    if (det != 0) {
+        return true;
+    }
+    return false;
+}
+
+bool cercuricircumscris(puncte a, puncte b, puncte c, double& cx, double& cy, double& razapatrat) {
+    double d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+    if (d == 0) {
+        return false;
+    }
+
+    cx = ((a.x * a.x + a.y * a.y) * (b.y - c.y) + (b.x * b.x + b.y * b.y) * (c.y - a.y) + (c.x * c.x + c.y * c.y) * (a.y - b.y)) / d;
+    cy = ((a.x * a.x + a.y * a.y) * (c.x - b.x) + (b.x * b.x + b.y * b.y) * (a.x - c.x) + (c.x * c.x + c.y * c.y) * (b.x - a.x)) / d;
+    razapatrat = (a.x - cx) * (a.x - cx) + (a.y - cy) * (a.y - cy);
+    return true;
+}
+
+void trieresolutii(int n) {
+    for (int vcomun = 0; vcomun < n; vcomun++) {
+        int triunghiuricurente = 0;
+        bool folosit[30];
+
+        for (int k = 0; k < 30; k++) {
+            folosit[k] = false;
+        }
+        folosit[vcomun] = true;
+
+        for (int i = 0; i < n - 1; i++) {
+            if (folosit[i] == true) {
+                continue;
+            }
+
+            for (int j = i + 1; j < n; j++) {
+                if (folosit[j] == true) {
+                    continue;
+                }
+
+                if (estetriunghi(p[vcomun], p[i], p[j]) == true) {
+                    double cx, cy, razapatrat;
+                    cercuricircumscris(p[vcomun], p[i], p[j], cx, cy, razapatrat);
+
+                    bool conditieinscris = true;
+                    for (int k = 0; k < n; k++) {
+                        if (k != vcomun && k != i && k != j) {
+                            double distpatrat = (p[k].x - cx) * (p[k].x - cx) + (p[k].y - cy) * (p[k].y - cy);
+                            if (distpatrat < razapatrat) {
+                                conditieinscris = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (conditieinscris == true) {
+                        folosit[i] = true;
+                        folosit[j] = true;
+                        triunghiuricurente++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (triunghiuricurente > maxtriunghiuri) {
+            maxtriunghiuri = triunghiuricurente;
+        }
+    }
+}
+
+void afisarerezultat() {
+    cout << "Numarul maximal de triunghiuri: " << maxtriunghiuri << endl;
+}
+
+int main() {
+    int n;
+    citire(n);
+    trieresolutii(n);
+    afisarerezultat();
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Fișierul date.in</p>
+<textarea class="camp-problema camp-datein" readonly>
+7
+0 0
+1 2
+2 4
+-1 3
+4 1
+2 -2
+-3 -1
+</textarea>
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/m1.6.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m2.3</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M2. 3 Problema bancomatelor. Scrieți un program, care afișează modalitatea de plată, a unui
+bancomat, folosind un număr minim de bancnote, a unei sume întregi S de lei (S<100000). Plata se
+efectuează folosind bancnote cu valoarea 1, 5, 10, 50, 100, 200 și 500 de lei. Numărul de bancnote de
+fiecare valoare se citește din fișierul text date.in, care conține 7 rânduri, în fiecare din care sunt
+indicate numărul de bancnote respectiv de 1, 5, 10, 50, 100, 200 și 500 de lei. </textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int valori[7] = { 500, 200, 100, 50, 10, 5, 1 };
+int stoc[7];
+int folosite[7];
+
+void citirestoc() {
+    fstream fin("date.in");
+    for (int i = 0; i < 7; i++) {
+        fin >> stoc[6 - i];
+    }
+    fin.close();
+}
+
+void calculeazagreedy(int suma) {
+    for (int i = 0; i < 7; i++) {
+        folosite[i] = 0;
+    }
+
+    for (int i = 0; i < 7; i++) {
+        while (suma >= valori[i] && stoc[i] > 0) {
+            suma = suma - valori[i];
+            stoc[i]--;
+            folosite[i]++;
+        }
+    }
+
+    if (suma > 0) {
+        cout << "Suma nu poate fi platita cu bancnotele disponibile!" << endl;
+    }
+    else {
+        cout << "Bancnote eliberate:" << endl;
+        for (int i = 0; i < 7; i++) {
+            if (folosite[i] > 0) {
+                cout << valori[i] << " lei: " << folosite[i] << " buc." << endl;
+            }
+        }
+    }
+}
+
+int main() {
+    int s;
+    cout << "Introdu suma: ";
+    cin >> s;
+
+    citirestoc();
+    calculeazagreedy(s);
+
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Fișierul date.in</p>
+<textarea class="camp-problema camp-datein" readonly>
+10
+5
+3
+2
+10
+4
+5
+</textarea>
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/m2.3.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m3.3</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M3. 3 Avem la dispoziție 6 culori: alb, galben, roșu, verde, albastru și negru. Să se precizeze toate
+drapelele tricolore care se pot proiecta, știind că trebuie respectate regulile:
+a) Orice drapel are culoarea din mijloc galben sau verde;
+b) Cele trei culori de pe drapel sunt distincte.</textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <string>
+
+using namespace std;
+
+string nume_culori[7] = { "", "alb", "galben", "rosu", "verde", "albastru", "negru" };
+int x[4];
+int n = 3;
+int contor_drapele = 0;
+
+int primulelement(int k) {
+    return 1;
+}
+
+bool continuare(int k) {
+    for (int i = 1; i < k; i++) {
+        if (x[i] == x[k]) {
+            return false;
+        }
+    }
+
+    if (k == 2) {
+        if (x[2] != 2 && x[2] != 4) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool existasuccesor(int k) {
+    if (x[k] < 6) {
+        return true;
+    }
+    return false;
+}
+
+int succesor(int k) {
+    return x[k] + 1;
+}
+
+void prelucrareasolutiei() {
+    contor_drapele++;
+    cout << contor_drapele << ". " << nume_culori[x[1]] << " - " << nume_culori[x[2]] << " - " << nume_culori[x[3]] << endl;
+}
+
+void reluare(int k) {
+    if (k <= n) {
+        x[k] = primulelement(k);
+        if (continuare(k) == true) {
+            reluare(k + 1);
+        }
+        while (existasuccesor(k) == true) {
+            x[k] = succesor(k);
+            if (continuare(k) == true) {
+                reluare(k + 1);
+            }
+        }
+    }
+    else {
+        prelucrareasolutiei();
+    }
+}
+
+int main() {
+    cout << "Drapele tricolore gasite:" << endl;
+    cout << "-------------------------" << endl;
+
+    reluare(1);
+
+    cout << "-------------------------" << endl;
+    cout << "Total drapele: " << contor_drapele << endl;
+
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/m3.3.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m3.37</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M3. 37 Colorarea hârților. Pe o hartă sunt reprezentate n țări, n ≤ 30. În memoria calculatorului harta
+este redată prin matricea A=||aij||nxm unde aij = {
+
+1, dacă țările i,j sunt vecine
+0, în caz contrar
+
+Determinați numărul minim de culori m necesare pentru a colora harta. Evident, se cere ca oricare
+două țări vecine să fie colorate diferit </textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <fstream>
+using namespace std;
+
+int n;
+int a[31][31];
+int x[31];
+int m;
+bool solutiegasita = false;
+
+void citire() {
+    fstream fin("date.in");
+    fin >> n;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            fin >> a[i][j];
+        }
+    }
+    fin.close();
+}
+
+int primulelement(int k) {
+    return 1;
+}
+
+bool continuare(int k) {
+    for (int i = 1; i < k; i++) {
+        if (a[i][k] == 1 && x[i] == x[k]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool existasuccesor(int k) {
+    if (x[k] < m) {
+        return true;
+    }
+    return false;
+}
+
+int succesor(int k) {
+    return x[k] + 1;
+}
+
+void prelucrareasolutiei() {
+    solutiegasita = true;
+}
+
+void reluare(int k) {
+    if (solutiegasita == true) {
+        return;
+    }
+
+    if (k <= n) {
+        x[k] = primulelement(k);
+        if (continuare(k) == true) {
+            reluare(k + 1);
+        }
+        while (existasuccesor(k) == true && solutiegasita == false) {
+            x[k] = succesor(k);
+            if (continuare(k) == true) {
+                reluare(k + 1);
+            }
+        }
+    }
+    else {
+        prelucrareasolutiei();
+    }
+}
+
+int main() {
+    citire();
+
+    solutiegasita = false;
+    m = 1;
+
+    while (m <= n && solutiegasita == false) {
+        for (int i = 1; i <= n; i++) {
+            x[i] = 0;
+        }
+
+        reluare(1);
+
+        if (solutiegasita == false) {
+            m++;
+        }
+    }
+
+    cout << "Numarul minim de culori necesare este: " << m << endl;
+    cout << "Repartizarea culorilor pe tari:" << endl;
+    for (int i = 1; i <= n; i++) {
+        cout << "Tara " << i << " -> Culoarea " << x[i] << endl;
+    }
+
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Fișierul date.in</p>
+<textarea class="camp-problema camp-datein" readonly>
+4
+0 1 1 1
+1 0 1 0
+1 1 0 1
+1 0 1 0
+</textarea>
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/m3.37.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m4.3</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M4. 3 Să se genereze și să se numere toate permutările mulțimii {1,2,3,...,n} care au proprietatea că
+oricare două elemente alăturate au paritate diferită.
+Exemplu: pentru n=4:
+1 2 3 4
+1 4 3 2
+2 1 4 3
+...
+4 3 2 1</textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+int n;
+int x[30];
+bool pus[30];
+int contor = 0;
+
+int primulelement(int k) {
+    return 1;
+}
+
+bool continuare(int k) {
+    if (pus[x[k]] == true) {
+        return false;
+    }
+
+    if (k > 1) {
+        if (x[k] % 2 == x[k - 1] % 2) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool existasuccesor(int k) {
+    if (x[k] < n) {
+        return true;
+    }
+    return false;
+}
+
+int succesor(int k) {
+    return x[k] + 1;
+}
+
+void prelucrareasolutiei() {
+    contor++;
+    for (int i = 1; i <= n; i++) {
+        cout << x[i] << " ";
+    }
+    cout << endl;
+}
+
+void generare(int k) {
+    if (k <= n) {
+        x[k] = primulelement(k);
+        if (continuare(k) == true) {
+            pus[x[k]] = true;
+            generare(k + 1);
+            pus[x[k]] = false;
+        }
+        while (existasuccesor(k) == true) {
+            x[k] = succesor(k);
+            if (continuare(k) == true) {
+                pus[x[k]] = true;
+                generare(k + 1);
+                pus[x[k]] = false;
+            }
+        }
+    }
+    else {
+        prelucrareasolutiei();
+    }
+}
+
+int main() {
+    cout << "Introdu n: ";
+    cin >> n;
+
+    for (int i = 1; i <= n; i++) {
+        pus[i] = false;
+    }
+
+    cout << "\nPermutarile cu paritate diferita alaturata:" << endl;
+    cout << "--------------------------------------------" << endl;
+
+    generare(1);
+
+    cout << "--------------------------------------------" << endl;
+    cout << "Numarul total de permutari gasite: " << contor << endl;
+
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/M4.3.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m5.23</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M5. 23 Se dă un șir S de n numere întregi. Să se determine câte inversiuni sunt în șirul dat. Numim
+inversiune o pereche de indici 1<=i<j<=n astfel încât S[i] > S[j].
+Exemplu: în șirul {0 1 9 4 5 7 6 8 2} sunt 12 inversiuni. </textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int n;
+int s[100];
+int temp[100];
+
+void citire() {
+    fstream fin("date.in");
+    fin >> n;
+    for (int i = 1; i <= n; i++) {
+        fin >> s[i];
+    }
+    fin.close();
+}
+
+bool solutiedirecta(int i, int j) {
+    if (i >= j) {
+        return true;
+    }
+    return false;
+}
+
+void prelucrare(int i, int j, long long& x) {
+    x = 0;
+}
+
+void combina(int i, int m, int j, long long x1, long long x2, long long& x) {
+    long long inversiuni_interclasare = 0;
+    int stanga = i;
+    int dreapta = m + 1;
+    int k = i;
+
+    while (stanga <= m && dreapta <= j) {
+        if (s[stanga] <= s[dreapta]) {
+            temp[k] = s[stanga];
+            stanga++;
+        }
+        else {
+            temp[k] = s[dreapta];
+            inversiuni_interclasare = inversiuni_interclasare + (m - stanga + 1);
+            dreapta++;
+        }
+        k++;
+    }
+
+    while (stanga <= m) {
+        temp[k] = s[stanga];
+        stanga++;
+        k++;
+    }
+
+    while (dreapta <= j) {
+        temp[k] = s[dreapta];
+        dreapta++;
+        k++;
+    }
+
+    for (int poz = i; poz <= j; poz++) {
+        s[poz] = temp[poz];
+    }
+
+    x = x1 + x2 + inversiuni_interclasare;
+}
+
+void despartesistapineste(int i, int j, long long& x) {
+    if (solutiedirecta(i, j) == true) {
+        prelucrare(i, j, x);
+    }
+    else {
+        int m = (j - i) / 2;
+        long long x1 = 0;
+        long long x2 = 0;
+
+        despartesistapineste(i, i + m, x1);
+        despartesistapineste(i + m + 1, j, x2);
+
+        combina(i, i + m, j, x1, x2, x);
+    }
+}
+
+int main() {
+    citire();
+
+    long long total_inversiuni = 0;
+    despartesistapineste(1, n, total_inversiuni);
+
+    cout << "Numarul total de inversiuni: " << total_inversiuni << endl;
+
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Fișierul date.in</p>
+<textarea class="camp-problema camp-datein" readonly>
+9
+0 1 9 4 5 7 6 8 2
+</textarea>
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/M5.23.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m6.3</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M6. 3 Lucrare de control. Mai multor elevi li se cere să pună într-o anumită ordine un număr de
+n<200 cuvinte formate numai din litere mici – ordinea exprimă faptul că aceste cuvinte se succed după
+o anumită logică.
+Exemplu: platon kant marx stalin havel.
+Logica succesiunii constă în faptul că fiecare cuvânt poate fi definit folosind numai cuvintele
+anterioare.
+Fiecare elev îi transmite profesorului succesiunea de cuvinte care i se pare logică. Sarcina profesorului
+constă în a acorda fiecărui elev una dintre notele 1, 2, 3, ..., n, corespunzătoare numărului de cuvinte
+așezate într-o succesiune corectă. Pentru exemplul 1 avem următoarele note:
+marx stalin kant platon havel 3
+havel marx stalin kant platon 2
+havel stalin marx kant platon 1 </textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+int n;
+string profesor[205];
+string elev[205];
+int linie_veche[205];
+int linie_noua[205];
+
+void citire_date() {
+    fstream fin("date.in");
+    fin >> n;
+    for (int i = 1; i <= n; i++) {
+        fin >> profesor[i];
+    }
+    for (int i = 1; i <= n; i++) {
+        fin >> elev[i];
+    }
+    fin.close();
+}
+
+void calculeaza_dinamica() {
+    for (int j = 0; j <= n; j++) {
+        linie_veche[j] = 0;
+        linie_noua[j] = 0;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (profesor[i] == elev[j]) {
+                linie_noua[j] = linie_veche[j - 1] + 1;
+            }
+            else {
+                int max_vecin = linie_veche[j];
+                if (linie_noua[j - 1] > max_vecin) {
+                    max_vecin = linie_noua[j - 1];
+                }
+                linie_noua[j] = max_vecin;
+            }
+        }
+
+        for (int j = 1; j <= n; j++) {
+            linie_veche[j] = linie_noua[j];
+        }
+    }
+}
+
+void afiseaza_nota() {
+    cout << "Nota acordata elevului este: " << linie_veche[n] << endl;
+}
+
+int main() {
+    citire_date();
+    calculeaza_dinamica();
+    afiseaza_nota();
+    return 0;
+}</textarea>
+<p class="eticheta-camp">Fișierul date.in</p>
+<textarea class="camp-problema camp-datein" readonly>
+5
+platon kant marx stalin havel
+marx stalin kant platon havel
+</textarea>
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/M6.3.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m6.24</span>
+            <span class="problema-badge">C++</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M6. 24 Dreptunghiuri. În timpul orei de matematică, Bianca nu este atentă și începe să deseneze N
+dreptunghiuri pe caiet. La un moment dat, își pune următoarea întrebare: Care este numărul maxim K
+de dreptunghiuri, pe care poate să le aleagă, astfel încât primul să încapă în al doilea, al doilea în al
+treilea,...., al k-1-lea în al k-lea? Pentru că nu știe răspunsul la această întrebare, îl roagă pe prietenul ei
+Ștefan să o ajute. Ștefan se gândește puțin și găsește un algoritm prin care să rezolve problema Biancăi
+și să afle numărul maxim. Găsiți și voi algoritmul lui Ștefan.
+Se dau N dreptunghiuri pentru care se știe lungimea L și lățimea l. Se cere să răspundeți la întrebarea
+Biancăi. Se consideră că un dreptunghi D1 cu lungimea L1 și lățimea l1 încape în alt dreptunghi D2 cu
+L2 și l2 dacă L1<L2 și l1<l2.
+Date de intrare: Fișierul de intrare date.in conține pe prima linie numărul N de dreptunghiuri.
+Următoarele N linii conțin 2 numere întregi ce reprezintă lungimea L și lățimea l fiecărui dreptunghi.
+Date de ieșire: În fișierul de ieșire date.out se va afișa pe primul rând numărul maxim K de
+dreptunghiuri ce pot fi alese astfel încât primul să intre în al doilea, al doilea în al treilea,...., al k-1-lea
+în al k-lea.
+Exemplu:
+date.in
+7
+26 12
+14 17
+8 3
+18 14
+5 2
+20 17
+16 2
+date.out
+4 </textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+#include <fstream>
+#include <cmath>
+
+using namespace std;
+
+struct dreptunghi {
+    int lu;
+    int la;
+};
+
+int n;
+dreptunghi d[205];
+int dinamica[205];
+
+void citiredatain() {
+    fstream fin("date.in");
+    if (!fin.is_open()) {
+        cout << "Fisierul date.in nu s-a putut deschide";
+        exit(1);
+    }
+    fin >> n;
+    for (int i = 0; i < n; i++) {
+        fin >> d[i].lu >> d[i].la;
+    }
+    fin.close();
+}
+
+void sorteazadreptunghiuri() {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (d[i].lu > d[j].lu || (d[i].lu == d[j].lu && d[i].la < d[j].la)) {
+                dreptunghi temp = d[i];
+                d[i] = d[j];
+                d[j] = temp;
+            }
+        }
+    }
+}
+
+int calculeazadinamica() {
+    for (int i = 0; i < n; i++) {
+        dinamica[i] = 1;
+    }
+
+    int k_maxim = 1;
+
+    for (int i = 1; i < n; i++) {
+        for (int j = 0; j < i; j++) {
+            if (d[j].lu < d[i].lu && d[j].la < d[i].la) {
+                if (dinamica[j] + 1 > dinamica[i]) {
+                    dinamica[i] = dinamica[j] + 1;
+                }
+            }
+        }
+        if (dinamica[i] > k_maxim) {
+            k_maxim = dinamica[i];
+        }
+    }
+
+    return k_maxim;
+}
+
+void scrieredateout(int rezultat) {
+    fstream fout("date.out", ios::out);
+    fout << rezultat;
+    fout.close();
+}
+
+int main() {
+    citiredatain();
+    sorteazadreptunghiuri();
+
+    int k = calculeazadinamica();
+
+    scrieredateout(k);
+
+    return 0;
+}</textarea>
+
+            <p class="eticheta-camp">Fișierul date.in</p>
+<textarea class="camp-problema camp-datein" readonly>
+7
+26 12
+14 17
+8 3
+18 14
+5 2
+20 17
+16 2
+</textarea>
+           <p class="eticheta-camp">Fișierul date.out</p>
+<textarea class="camp-problema camp-datein" readonly>
+4
+</textarea> 
+        </div>
+    </div>
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">m5.19</span>
+            <span class="problema-badge">C++ Problemă independentă</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>M5. 19 Se citește un vector cu n elemente numere naturale. Să se calculeze CMMDC al elementelor
+vectorului folosind divide et impera.</textarea>
+
+            <p class="eticheta-camp">Implementarea în C++</p>
+            <textarea class="camp-problema camp-cod" readonly>#include <iostream>
+
+using namespace std;
+
+int cmmdc(int a, int b) {
+    while (b != 0) {
+        int r = a % b;
+        a = b;
+        b = r;
+    }
+    return a;
+}
+
+int cmmdc_div_et_imp(int v[], int st, int dr) {
+    if (st == dr) {
+        return v[st];
+    }
+
+    int mij = (st + dr) / 2;
+
+    int cmmdc_st = cmmdc_div_et_imp(v, st, mij);
+    int cmmdc_dr = cmmdc_div_et_imp(v, mij + 1, dr);
+
+    return cmmdc(cmmdc_st, cmmdc_dr);
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    int v[100];
+    for (int i = 0; i < n; i++) {
+        cin >> v[i];
+    }
+
+    int rezultat = cmmdc_div_et_imp(v, 0, n - 1);
+    cout << rezultat;
+
+    return 0;
+}</textarea>
+            <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/Independent_m5.19.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+    <div class="ornament-separator">Probleme POO — C#</div>
+
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">POO 10</span>
+            <span class="problema-badge">C# Programare OOP</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>10. Evidenta autovehicule
+Sa se realizeze un proiect pentru evidenta autovehiculelor inmatriculate in circulatie. Pentru fiecare autoturism
+se considera urmatoarele informatii:
+1. tipul autovehiculului;
+2. marca;
+3. datele tehnice (cilindree, etc.); alte caracteristici (culoare, etc.);
+4. numarul de inmatriculare; data inmatricularii; proprietarul;
+5. data ultimei revizii tehnice;
+Operatii cerute:
+1. actualizare autoturisme;
+2. inmatricularea unui nou autoturism;
+3. modificare caracteristici autoturism inmatriculat;
+4. cautare autoturism dupa numarul de inmatriculare;
+5. cautare autoturism dupa nume proprietar;
+6. revizie autoturism; radiere autoturism;
+7. afisarea autoturismelor inmatriculate dupa o anumita data;
+8. afisarea autoturismelor a caror ultima revizie este inainte de o anumita data
+9. introdusa de la tastatura;
+10. sortarea autoturismelor dupa tipul autovehiculului;
+11. alocarea unui numar de inmatriculare astfel incat sa nu avem doua autoturisme cu numere identice; </textarea>
+
+            <p class="eticheta-camp">Implementarea în C#</p>
+            <textarea class="camp-problema camp-cod" readonly>using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace EvidentaAutovehicule
+{
+    class DateTehnice
+    {
+        public int cilindree { get; set; }
+        public string culoare { get; set; }
+
+        public DateTehnice(int cilindree, string culoare)
+        {
+            this.cilindree = cilindree;
+            this.culoare = culoare;
+        }
+    }
+
+    class DetaliiInmatriculare
+    {
+        public string numar { get; set; }
+        public DateTime data { get; set; }
+        public string proprietar { get; set; }
+
+        public DetaliiInmatriculare(string numar, DateTime data, string proprietar)
+        {
+            this.numar = numar;
+            this.data = data;
+            this.proprietar = proprietar;
+        }
+    }
+
+    class Autoturism
+    {
+        public string tip { get; set; }
+        public string marca { get; set; }
+        public DateTehnice tehnice { get; set; }
+        public DetaliiInmatriculare inmatriculare { get; set; }
+        public DateTime data_ultima_revizie { get; set; }
+
+        public Autoturism(string tip, string marca, int cilindree, string culoare, string numar, DateTime data_inmat, string proprietar, DateTime data_rev)
+        {
+            this.tip = tip;
+            this.marca = marca;
+            this.tehnice = new DateTehnice(cilindree, culoare);
+            this.inmatriculare = new DetaliiInmatriculare(numar, data_inmat, proprietar);
+            this.data_ultima_revizie = data_rev;
+        }
+
+        public void afisare()
+        {
+            Console.WriteLine($"[{tip}] {marca} | Nr: {inmatriculare.numar} | Proprietar: {inmatriculare.proprietar}");
+            Console.WriteLine($"      Cilindree: {tehnice.cilindree} cmc | Culoare: {tehnice.culoare}");
+            Console.WriteLine($"      Inmatriculat la: {inmatriculare.data.ToShortDateString()} | Ultima revizie: {data_ultima_revizie.ToShortDateString()}");
+            Console.WriteLine(new string('-', 60));
+        }
+    }
+
+    internal class Program
+    {
+        static List<Autoturism> flota = new List<Autoturism>();
+
+        static void Main(string[] args)
+        {
+            flota.Add(new Autoturism("Sedan", "Skoda", 1968, "Negru", "B123AAA", new DateTime(2024, 5, 10), "Popescu Ion", new DateTime(2026, 1, 15)));
+            flota.Add(new Autoturism("SUV", "Volvo", 2400, "Gri", "C234BBB", new DateTime(2025, 2, 20), "Ionescu Maria", new DateTime(2025, 11, 10)));
+            flota.Add(new Autoturism("Sedan", "Toyota", 1798, "Alb", "B555CCC", new DateTime(2023, 8, 12), "Popescu Ion", new DateTime(2024, 3, 22)));
+
+            bool rulare = true;
+            while (rulare)
+            {
+                Console.WriteLine("\n=== EVIDENTA AUTOVEHICULE ===");
+                Console.WriteLine("1. Inmatriculare autoturism nou");
+                Console.WriteLine("2. Modificare caracteristici autoturism inmatriculat");
+                Console.WriteLine("3. Cautare autoturism dupa numarul de inmatriculare");
+                Console.WriteLine("4. Cautare autoturism dupa nume proprietar");
+                Console.WriteLine("5. Inregistrare revizie tehnica noua");
+                Console.WriteLine("6. Radiere autoturism");
+                Console.WriteLine("7. Afisare autoturisme inmatriculate dupa o anumita data");
+                Console.WriteLine("8. Afisare autoturisme cu revizia expirata (inainte de o data)");
+                Console.WriteLine("9. Sortare autoturisme dupa tipul autovehiculului");
+                Console.WriteLine("10. Afisare toata flota");
+                Console.WriteLine("0. Iesire");
+                Console.Write("\nSelectati optiunea: ");
+
+                string optiune = Console.ReadLine();
+
+                switch (optiune)
+                {
+                    case "1":
+                        inmatriculare_noua();
+                        break;
+                    case "2":
+                        modificare_caracteristici();
+                        break;
+                    case "3":
+                        cautare_dupa_numar();
+                        break;
+                    case "4":
+                        cautare_dupa_proprietar();
+                        break;
+                    case "5":
+                        efectuare_revizie();
+                        break;
+                    case "6":
+                        radiere_autoturism();
+                        break;
+                    case "7":
+                        afisare_dupa_data_inmatricularii();
+                        break;
+                    case "8":
+                        afisare_revizii_vechi();
+                        break;
+                    case "9":
+                        sortare_dupa_tip();
+                        break;
+                    case "10":
+                        afisare_toate();
+                        break;
+                    case "0":
+                        rulare = false;
+                        continue;
+                    default:
+                        Console.WriteLine("Optiune invalida!");
+                        break;
+                }
+
+                Console.WriteLine("\nApasati o tasta pentru a continua...");
+                Console.ReadKey();
+            }
+        }
+
+        static void inmatriculare_noua()
+        {
+            Console.WriteLine("\n--- INMATRICULARE AUTOTURISM NOU ---");
+            Console.Write("Numar inmatriculare dorit: ");
+            string nr = Console.ReadLine().Trim().ToUpper();
+
+            if (flota.Any(a => a.inmatriculare.numar == nr))
+            {
+                Console.WriteLine("Eroare: Acest numar de inmatriculare este deja atribuit altui vehicul!");
+                return;
+            }
+
+            Console.Write("Tip autovehicul: ");
+            string tip = Console.ReadLine();
+            Console.Write("Marca: ");
+            string marca = Console.ReadLine();
+            Console.Write("Cilindree (cmc): ");
+            int cil = int.Parse(Console.ReadLine());
+            Console.Write("Culoare: ");
+            string culoare = Console.ReadLine();
+            Console.Write("Nume proprietar: ");
+            string prop = Console.ReadLine();
+
+            Console.Write("An inmatriculare: ");
+            int an_in = int.Parse(Console.ReadLine());
+            Console.Write("Luna inmatriculare: ");
+            int luna_in = int.Parse(Console.ReadLine());
+            Console.Write("Zi inmatriculare: ");
+            int zi_in = int.Parse(Console.ReadLine());
+            DateTime data_inmat = new DateTime(an_in, luna_in, zi_in);
+
+            Console.Write("An ultima revizie: ");
+            int an_rev = int.Parse(Console.ReadLine());
+            Console.Write("Luna ultima revizie: ");
+            int luna_rev = int.Parse(Console.ReadLine());
+            Console.Write("Zi ultima revizie: ");
+            int zi_rev = int.Parse(Console.ReadLine());
+            DateTime data_rev = new DateTime(an_rev, luna_rev, zi_rev);
+
+            Autoturism nou = new Autoturism(tip, marca, cil, culoare, nr, data_inmat, prop, data_rev);
+            flota.Add(nou);
+            Console.WriteLine("\nVehicul inmatriculat cu succes!");
+        }
+
+        static void modificare_caracteristici()
+        {
+            Console.WriteLine("\n--- MODIFICARE CARACTERISTICI ---");
+            Console.Write("Introduceti numarul de inmatriculare al masinii: ");
+            string nr = Console.ReadLine().Trim().ToUpper();
+
+            Autoturism auto = flota.FirstOrDefault(a => a.inmatriculare.numar == nr);
+            if (auto == null)
+            {
+                Console.WriteLine("Autoturismul nu a fost gasit.");
+                return;
+            }
+
+            Console.WriteLine("Lasati campul gol daca nu doriti sa modificati valoarea curenta.");
+
+            Console.Write($"Tip nou ({auto.tip}): ");
+            string tip_nou = Console.ReadLine();
+            if (!string.IsNullOrEmpty(tip_nou)) auto.tip = tip_nou;
+
+            Console.Write($"Culoare noua ({auto.tehnice.culoare}): ");
+            string culoare_noua = Console.ReadLine();
+            if (!string.IsNullOrEmpty(culoare_noua)) auto.tehnice.culoare = culoare_noua;
+
+            Console.Write($"Proprietar nou ({auto.inmatriculare.proprietar}): ");
+            string prop_nou = Console.ReadLine();
+            if (!string.IsNullOrEmpty(prop_nou)) auto.inmatriculare.proprietar = prop_nou;
+
+            Console.WriteLine("Caracteristici actualizate!");
+        }
+
+        static void cautare_dupa_numar()
+        {
+            Console.WriteLine("\n--- CAUTARE DUPA NUMAR ---");
+            Console.Write("Numar inmatriculare: ");
+            string nr = Console.ReadLine().Trim().ToUpper();
+
+            Autoturism auto = flota.FirstOrDefault(a => a.inmatriculare.numar == nr);
+            if (auto != null)
+            {
+                auto.afisare();
+            }
+            else
+            {
+                Console.WriteLine("Nu exista niciun autoturism cu acest numar.");
+            }
+        }
+
+        static void cautare_dupa_proprietar()
+        {
+            Console.WriteLine("\n--- CAUTARE DUPA PROPRIETAR ---");
+            Console.Write("Nume proprietar: ");
+            string nume = Console.ReadLine().Trim();
+
+            var rezultate = flota.Where(a => a.inmatriculare.proprietar.Equals(nume, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (rezultate.Count > 0)
+            {
+                foreach (var auto in rezultate) auto.afisare();
+            }
+            else
+            {
+                Console.WriteLine("Nu s-au gasit masini pentru acest proprietar.");
+            }
+        }
+
+        static void efectuare_revizie()
+        {
+            Console.WriteLine("\n--- REVIZIE TEHNICA ---");
+            Console.Write("Numar inmatriculare: ");
+            string nr = Console.ReadLine().Trim().ToUpper();
+
+            Autoturism auto = flota.FirstOrDefault(a => a.inmatriculare.numar == nr);
+            if (auto == null)
+            {
+                Console.WriteLine("Autoturismul nu exista.");
+                return;
+            }
+
+            Console.Write("An revizie noua: ");
+            int an = int.Parse(Console.ReadLine());
+            Console.Write("Luna revizie noua: ");
+            int luna = int.Parse(Console.ReadLine());
+            Console.Write("Zi revizie noua: ");
+            int zi = int.Parse(Console.ReadLine());
+
+            auto.data_ultima_revizie = new DateTime(an, luna, zi);
+            Console.WriteLine("Data reviziei a fost actualizata!");
+        }
+
+        static void radiere_autoturism()
+        {
+            Console.WriteLine("\n--- RADIERE VEHICUL ---");
+            Console.Write("Numar inmatriculare pentru radiere: ");
+            string nr = Console.ReadLine().Trim().ToUpper();
+
+            Autoturism auto = flota.FirstOrDefault(a => a.inmatriculare.numar == nr);
+            if (auto != null)
+            {
+                flota.Remove(auto);
+                Console.WriteLine("Autoturismul a fost radiat din circulatie.");
+            }
+            else
+            {
+                Console.WriteLine("Masina nu a fost gasita.");
+            }
+        }
+
+        static void afisare_dupa_data_inmatricularii()
+        {
+            Console.WriteLine("\n--- FILTRARE DUPA DATA INMATRICULARII ---");
+            Console.Write("An limita: ");
+            int an = int.Parse(Console.ReadLine());
+            Console.Write("Luna limita: ");
+            int luna = int.Parse(Console.ReadLine());
+            Console.Write("Zi limita: ");
+            int zi = int.Parse(Console.ReadLine());
+            DateTime limita = new DateTime(an, luna, zi);
+
+            Console.WriteLine($"\nAutoturisme inmatriculate dupa {limita.ToShortDateString()}:\n");
+            var filtrate = flota.Where(a => a.inmatriculare.data > limita).ToList();
+
+            if (filtrate.Count == 0) Console.WriteLine("Niciun rezultat.");
+            foreach (var auto in filtrate) auto.afisare();
+        }
+
+        static void afisare_revizii_vechi()
+        {
+            Console.WriteLine("\n--- FILTRARE DUPA DATA REVIZIEI ---");
+            Console.Write("An referinta: ");
+            int an = int.Parse(Console.ReadLine());
+            Console.Write("Luna referinta: ");
+            int luna = int.Parse(Console.ReadLine());
+            Console.Write("Zi referinta: ");
+            int zi = int.Parse(Console.ReadLine());
+            DateTime limita = new DateTime(an, luna, zi);
+
+            Console.WriteLine($"\nVehicule cu ultima revizie inainte de {limita.ToShortDateString()}:\n");
+            var filtrate = flota.Where(a => a.data_ultima_revizie < limita).ToList();
+
+            if (filtrate.Count == 0) Console.WriteLine("Niciun rezultat.");
+            foreach (var auto in filtrate) auto.afisare();
+        }
+
+        static void sortare_dupa_tip()
+        {
+            flota = flota.OrderBy(a => a.tip).ToList();
+            Console.WriteLine("\nFlota a fost sortata alfabetic dupa tipul vehiculului!");
+            afisare_toate();
+        }
+
+        static void afisare_toate()
+        {
+            Console.WriteLine("\n--- TOATE AUTOVEHICULELE DIN FLOTA ---\n");
+            if (flota.Count == 0) Console.WriteLine("Flota este vida.");
+            foreach (var auto in flota) auto.afisare();
+        }
+    }
+}</textarea>
+           <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/POO 10.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+    <div class="problema-bloc">
+        <div class="problema-antet">
+            <span class="problema-id">POO 19</span>
+            <span class="problema-badge">C# Programare OOP</span>
+        </div>
+        <div class="problema-continut">
+            <p class="eticheta-camp">Condiția problemei</p>
+            <textarea class="camp-problema" readonly>19. Gestiune posta electronica
+Sa se realizeze un program care sa asigure gestiunea unor adrese de mail dintr-o firma. Firma este
+structurata pe departamente, iar in fiecare departament adresele vor conpne urmatoarele campuri: nume,
+prenume, adr_mail, parola, domeniu, funcfie, tip cont, activa, ultima accesare.
+La pomirea aplicației va fi afișat urmatorul meniu:
+1. Incarcare din fișier a adreselor de mail ale firmei, din toate departamentele.
+2. Adaugare adresa mail pentru un nou angajat.
+3. Inactivare adrese nefolosite de mai mult de 3 luni.
+4. ștergere adrese mail inactive.
+5. Sortare adrese mail dupa nume și prenume angajat de la un anumit departament.
+6. Modificare parola la o anumita adresa de mail.
+7. Adaugare departament nou.
+8. Salvare adrese de mail in fișier, pe departamente.
+9. Ieșire
+Aplicația va fi implementata folosind clase șablon.</textarea>
+
+            <p class="eticheta-camp">Implementarea în C#</p>
+            <textarea class="camp-problema camp-cod" readonly>using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace GestiunePostaElectronica
+{
+    class ContMail
+    {
+        public string departament { get; set; }
+        public string nume { get; set; }
+        public string prenume { get; set; }
+        public string adr_mail { get; set; }
+        public string parola { get; set; }
+        public string domeniu { get; set; }
+        public string functie { get; set; }
+        public string tip_cont { get; set; }
+        public bool activa { get; set; }
+        public DateTime ultima_accesare { get; set; }
+
+        public ContMail(string departament, string nume, string prenume, string adr_mail, string parola, string domeniu, string functie, string tip_cont, bool activa, DateTime ultima_accesare)
+        {
+            this.departament = departament;
+            this.nume = nume;
+            this.prenume = prenume;
+            this.adr_mail = adr_mail;
+            this.parola = parola;
+            this.domeniu = domeniu;
+            this.functie = functie;
+            this.tip_cont = tip_cont;
+            this.activa = activa;
+            this.ultima_accesare = ultima_accesare;
+        }
+
+        public void afisare()
+        {
+            string stare = activa ? "Activa" : "Inactiva";
+            Console.WriteLine($"[{departament}] {nume} {prenume} | Mail: {adr_mail} | Stare: {stare}");
+            Console.WriteLine($"      Functie: {functie} | Tip: {tip_cont} | Ultima accesare: {ultima_accesare.ToShortDateString()}");
+            Console.WriteLine(new string('-', 60));
+        }
+    }
+
+    internal class Program
+    {
+        static List<ContMail> firma = new List<ContMail>();
+        static List<string> departamente = new List<string>();
+
+        static void Main(string[] args)
+        {
+            departamente.Add("IT");
+            departamente.Add("HR");
+
+            firma.Add(new ContMail("IT", "Popescu", "Ion", "ion.popescu@firma.com", "1234", "firma.com", "Programator", "Admin", true, new DateTime(2026, 5, 10)));
+            firma.Add(new ContMail("IT", "Ionescu", "Dan", "dan.ionescu@firma.com", "abcd", "firma.com", "Tester", "Standard", true, new DateTime(2026, 1, 15)));
+            firma.Add(new ContMail("HR", "Vasilescu", "Ana", "ana.v@firma.com", "qwer", "firma.com", "Recruiter", "Standard", true, new DateTime(2025, 11, 20)));
+
+            bool rulare = true;
+            while (rulare)
+            {
+                Console.WriteLine("\n=== GESTIUNE POSTA ELECTRONICA ===");
+                Console.WriteLine("1. Incarcare din fisier a adreselor");
+                Console.WriteLine("2. Adaugare adresa mail pentru un nou angajat");
+                Console.WriteLine("3. Inactivare adrese nefolosite de mai mult de 3 luni");
+                Console.WriteLine("4. Stergere adrese mail inactive");
+                Console.WriteLine("5. Sortare adrese dupa nume si prenume dintr-un departament");
+                Console.WriteLine("6. Modificare parola la o adresa de mail");
+                Console.WriteLine("7. Adaugare departament nou");
+                Console.WriteLine("8. Salvare adrese de mail in fisier, pe departamente");
+                Console.WriteLine("9. Afisare toate adresele");
+                Console.WriteLine("0. Iesire");
+                Console.Write("\nSelectati optiunea: ");
+
+                string optiune = Console.ReadLine();
+
+                switch (optiune)
+                {
+                    case "1":
+                        incarcare_fisier();
+                        break;
+                    case "2":
+                        adaugare_angajat();
+                        break;
+                    case "3":
+                        inactivare_conturi_vechi();
+                        break;
+                    case "4":
+                        stergere_inactive();
+                        break;
+                    case "5":
+                        sortare_departament();
+                        break;
+                    case "6":
+                        modificare_parola();
+                        break;
+                    case "7":
+                        adaugare_departament();
+                        break;
+                    case "8":
+                        salvare_fisier();
+                        break;
+                    case "9":
+                        afisare_tot();
+                        break;
+                    case "0":
+                        rulare = false;
+                        continue;
+                    default:
+                        Console.WriteLine("Optiune invalida!");
+                        break;
+                }
+
+                Console.WriteLine("\nApasati o tasta pentru a continua...");
+                Console.ReadKey();
+            }
+        }
+
+        static void incarcare_fisier()
+        {
+            Console.WriteLine("\n--- INCARCARE DATE DIN FISIER ---");
+            if (!File.Exists("date.txt"))
+            {
+                Console.WriteLine("Fisierul date.txt nu exista!");
+                return;
+            }
+
+            firma.Clear();
+            departamente.Clear();
+            string[] linii = File.ReadAllLines("date.txt");
+            string dep_curent = "";
+
+            foreach (string linie in linii)
+            {
+                if (string.IsNullOrWhiteSpace(linie)) continue;
+
+                if (linie.StartsWith("["))
+                {
+                    dep_curent = linie.Replace("[", "").Replace("]", "").Trim();
+                    if (!departamente.Contains(dep_curent))
+                    {
+                        departamente.Add(dep_curent);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(dep_curent))
+                {
+                    string[] bucati = linie.Split(',');
+                    if (bucati.Length == 9)
+                    {
+                        string nume = bucati[0].Trim();
+                        string prenume = bucati[1].Trim();
+                        string mail = bucati[2].Trim();
+                        string parola = bucati[3].Trim();
+                        string domeniu = bucati[4].Trim();
+                        string functie = bucati[5].Trim();
+                        string tip = bucati[6].Trim();
+                        bool activa = bool.Parse(bucati[7].Trim());
+
+                        string[] data_bucati = bucati[8].Trim().Split('-');
+                        int an = int.Parse(data_bucati[0]);
+                        int luna = int.Parse(data_bucati[1]);
+                        int zi = int.Parse(data_bucati[2]);
+                        DateTime u_acces = new DateTime(an, luna, zi);
+
+                        firma.Add(new ContMail(dep_curent, nume, prenume, mail, parola, domeniu, functie, tip, activa, u_acces));
+                    }
+                }
+            }
+            Console.WriteLine("Datele au fost incarcate cu succes!");
+        }
+
+        static void adaugare_angajat()
+        {
+            Console.WriteLine("\n--- ADAUGARE ANGAJAT NOU ---");
+            Console.Write("Nume departament existent: ");
+            string dep_cautat = Console.ReadLine().Trim();
+
+            bool dep_gasit = false;
+            foreach (string dep in departamente)
+            {
+                if (dep.Equals(dep_cautat, StringComparison.OrdinalIgnoreCase))
+                {
+                    dep_cautat = dep;
+                    dep_gasit = true;
+                    break;
+                }
+            }
+
+            if (!dep_gasit)
+            {
+                Console.WriteLine("Departamentul nu exista!");
+                return;
+            }
+
+            Console.Write("Nume: ");
+            string nume = Console.ReadLine();
+            Console.Write("Prenume: ");
+            string prenume = Console.ReadLine();
+            Console.Write("Adresa mail: ");
+            string mail = Console.ReadLine();
+            Console.Write("Parola: ");
+            string parola = Console.ReadLine();
+            Console.Write("Domeniu: ");
+            string domeniu = Console.ReadLine();
+            Console.Write("Functie: ");
+            string functie = Console.ReadLine();
+            Console.Write("Tip cont: ");
+            string tip = Console.ReadLine();
+
+            Console.Write("An ultima accesare: ");
+            int an = int.Parse(Console.ReadLine());
+            Console.Write("Luna ultima accesare: ");
+            int luna = int.Parse(Console.ReadLine());
+            Console.Write("Zi ultima accesare: ");
+            int zi = int.Parse(Console.ReadLine());
+            DateTime u_acces = new DateTime(an, luna, zi);
+
+            firma.Add(new ContMail(dep_cautat, nume, prenume, mail, parola, domeniu, functie, tip, true, u_acces));
+            Console.WriteLine("Adresa de mail a fost adaugata!");
+        }
+
+        static void inactivare_conturi_vechi()
+        {
+            Console.WriteLine("\n--- INACTIVARE CONTURI NEFOLOSITE (3 LUNI) ---");
+            DateTime limita = DateTime.Now.AddMonths(-3);
+            int contor = 0;
+
+            foreach (var mail in firma)
+            {
+                if (mail.activa && mail.ultima_accesare < limita)
+                {
+                    mail.activa = false;
+                    contor++;
+                }
+            }
+            Console.WriteLine($"Au fost inactivate {contor} adrese de mail.");
+        }
+
+        static void stergere_inactive()
+        {
+            Console.WriteLine("\n--- STERGERE ADRESE INACTIVE ---");
+            List<ContMail> ramase = new List<ContMail>();
+            int contor = 0;
+
+            foreach (var mail in firma)
+            {
+                if (mail.activa == true)
+                {
+                    ramase.Add(mail);
+                }
+                else
+                {
+                    contor++;
+                }
+            }
+            firma = ramase;
+            Console.WriteLine($"Au fost sterse {contor} adrese inactive din baza de date.");
+        }
+
+        static void sortare_departament()
+        {
+            Console.WriteLine("\n--- SORTARE DUPA NUME SI PRENUME ---");
+            Console.Write("Introduceti numele departamentului: ");
+            string dep_cautat = Console.ReadLine().Trim();
+
+            bool dep_gasit = false;
+            foreach (string dep in departamente)
+            {
+                if (dep.Equals(dep_cautat, StringComparison.OrdinalIgnoreCase))
+                {
+                    dep_cautat = dep;
+                    dep_gasit = true;
+                    break;
+                }
+            }
+
+            if (!dep_gasit)
+            {
+                Console.WriteLine("Departamentul nu exista.");
+                return;
+            }
+
+            for (int i = 0; i < firma.Count - 1; i++)
+            {
+                for (int j = i + 1; j < firma.Count; j++)
+                {
+                    int comp_nume = string.Compare(firma[i].nume, firma[j].nume, StringComparison.OrdinalIgnoreCase);
+                    if (comp_nume > 0 || (comp_nume == 0 && string.Compare(firma[i].prenume, firma[j].prenume, StringComparison.OrdinalIgnoreCase) > 0))
+                    {
+                        ContMail aux = firma[i];
+                        firma[i] = firma[j];
+                        firma[j] = aux;
+                    }
+                }
+            }
+
+            Console.WriteLine($"Adresele din departamentul {dep_cautat} au fost sortate:");
+            foreach (var mail in firma)
+            {
+                if (mail.departament == dep_cautat)
+                {
+                    mail.afisare();
+                }
+            }
+        }
+
+        static void modificare_parola()
+        {
+            Console.WriteLine("\n--- MODIFICARE PAROLA ---");
+            Console.Write("Introduceti adresa de mail: ");
+            string mail_cautat = Console.ReadLine().Trim();
+
+            ContMail gasit = null;
+            foreach (var m in firma)
+            {
+                if (m.adr_mail.Equals(mail_cautat, StringComparison.OrdinalIgnoreCase))
+                {
+                    gasit = m;
+                    break;
+                }
+            }
+
+            if (gasit == null)
+            {
+                Console.WriteLine("Adresa de mail nu a fost gasita.");
+                return;
+            }
+
+            Console.Write("Introduceti noua parola: ");
+            string parola_noua = Console.ReadLine();
+            gasit.parola = parola_noua;
+            Console.WriteLine("Parola a fost modificata cu succes.");
+        }
+
+        static void adaugare_departament()
+        {
+            Console.WriteLine("\n--- ADAUGARE DEPARTAMENT NOU ---");
+            Console.Write("Numele noului departament: ");
+            string nume_dep = Console.ReadLine().Trim();
+
+            bool exista = false;
+            foreach (string dep in departamente)
+            {
+                if (dep.Equals(nume_dep, StringComparison.OrdinalIgnoreCase))
+                {
+                    exista = true;
+                    break;
+                }
+            }
+
+            if (exista)
+            {
+                Console.WriteLine("Acest departament exista deja.");
+                return;
+            }
+
+            departamente.Add(nume_dep);
+            Console.WriteLine($"Departamentul {nume_dep} a fost creat.");
+        }
+
+        static void salvare_fisier()
+        {
+            Console.WriteLine("\n--- SALVARE DATE IN FISIER ---");
+            using (StreamWriter sw = new StreamWriter("date_salvate.txt"))
+            {
+                foreach (string dep in departamente)
+                {
+                    sw.WriteLine($"[{dep}]");
+                    foreach (var m in firma)
+                    {
+                        if (m.departament == dep)
+                        {
+                            string data_str = $"{m.ultima_accesare.Year}-{m.ultima_accesare.Month}-{m.ultima_accesare.Day}";
+                            sw.WriteLine($"{m.nume},{m.prenume},{m.adr_mail},{m.parola},{m.domeniu},{m.functie},{m.tip_cont},{m.activa},{data_str}");
+                        }
+                    }
+                    sw.WriteLine();
+                }
+            }
+            Console.WriteLine("Datele au fost salvate in date_salvate.txt");
+        }
+
+        static void afisare_tot()
+        {
+            Console.WriteLine("\n--- TOATE ADRESELE DIN FIRMA ---");
+            if (firma.Count == 0)
+            {
+                Console.WriteLine("Nu exista nicio adresa inregistrata.");
+                return;
+            }
+
+            foreach (var mail in firma)
+            {
+                mail.afisare();
+            }
+        }
+    }
+}</textarea><p class="eticheta-camp">Fișierul date.txt</p>
+<textarea class="camp-problema camp-datein" readonly>
+[IT]
+Popescu,Ion,ion.popescu@firma.com,1234,firma.com,Programator,Admin,True,2026-05-10
+Ionescu,Dan,dan.ionescu@firma.com,abcd,firma.com,Tester,Standard,True,2026-01-15
+Grigore,Alex,alex.g@firma.com,9999,firma.com,DevOps,Standard,False,2025-04-12
+
+[HR]
+Vasilescu,Ana,ana.v@firma.com,qwer,firma.com,Recruiter,Standard,True,2025-11-20
+Miron,Elena,elena.m@firma.com,asdf,firma.com,Manager HR,Admin,True,2026-06-02
+
+[Marketing]
+Nistor,Vlad,vlad.n@firma.com,zxcv,firma.com,Designer,Standard,True,2026-03-01
+Rusu,Oana,oana.rusu@firma.com,6789,firma.com,Copywriter,Standard,False,2024-08-14
+</textarea>
+           <p class="eticheta-camp">Rezultatul la consolă</p>
+            <img class="img-problema" src="imagini/POO 19.png" alt="Rezultatul la consolă">
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <span class="footer-text">Constantin Barbu · Practică de Instruire · CEEF Chișinău</span>
+    <span class="footer-text">Capitol 3 · Rezolvarea Problemelor</span>
+</footer>
+
+</body>
+</html>
